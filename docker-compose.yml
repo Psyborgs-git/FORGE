@@ -1,0 +1,59 @@
+version: '3.9'
+
+services:
+  postgres:
+    build:
+      context: ./forge-docker
+      dockerfile: Dockerfile.postgres
+    container_name: forge-postgres
+    environment:
+      POSTGRES_USER: forge
+      POSTGRES_PASSWORD: forge
+      POSTGRES_DB: forge
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./forge-docker/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U forge -d forge"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - forge-network
+
+  backend:
+    build:
+      context: ./forge-backend
+      dockerfile: ../forge-docker/Dockerfile.backend
+    container_name: forge-backend
+    environment:
+      DATABASE_URL: postgresql://forge:forge@postgres:5432/forge
+      OLLAMA_BASE_URL: http://host.docker.internal:11434
+      FORGE_SKILLS_DIR: /root/.forge/skills
+      FORGE_MODELS_DIR: /root/.forge/models
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./forge-backend:/app
+      - forge_skills:/root/.forge/skills
+      - forge_models:/root/.forge/models
+    networks:
+      - forge-network
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+volumes:
+  postgres_data:
+    driver: local
+  forge_skills:
+    driver: local
+  forge_models:
+    driver: local
+
+networks:
+  forge-network:
+    driver: bridge

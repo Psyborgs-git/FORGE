@@ -1,0 +1,37 @@
+# FORGE Backend Dependencies
+
+# FastAPI and server
+fastapi==0.115.0
+uvicorn[standard]==0.32.0
+python-multipart==0.0.12
+websockets==13.1
+
+# Database
+sqlalchemy==2.0.36
+asyncpg==0.30.0
+alembic==1.14.0
+pgvector==0.3.6
+
+# Configuration
+pydantic==2.10.3
+pydantic-settings==2.6.1
+python-dotenv==1.0.1
+
+# HTTP client
+httpx==0.27.2
+
+# Hardware detection
+pynvml==11.5.3
+psutil==6.1.0
+
+# YAML parsing
+pyyaml==6.0.2
+
+# Optional: torch for hardware detection (can be installed separately)
+# torch>=2.0.0
+
+# Development
+pytest==8.3.4
+pytest-asyncio==0.24.0
+ruff==0.8.4
+mypy==1.13.0
